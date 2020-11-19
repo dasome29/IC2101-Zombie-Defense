@@ -9,7 +9,10 @@ public class Main extends Application {
     }
 
     public void start(Stage primaryStage) {
+
         Window window = new Window(primaryStage);
+        Grid grid = new Grid(window, 10, 10);
+        window.setGrid(grid);
         Controller controller = new Controller(window);
     }
 }

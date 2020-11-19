@@ -24,15 +24,38 @@ public class Player extends Entity {
     protected int health = 100;
     protected int attackRange = 1;
     protected int experience = 0;
+    int damage = 50;
     protected int steps = 1;
     public ArrayList<String> abilities = new ArrayList<>();
-    protected int actions = 3;
+    public int actions = 3;
     protected ImageView image;
     protected Section section = null;
     protected Window window;
 
-    public void attack() {
 
+    private void getAttackEnemies() {
+
+    }
+
+    public void attack() {
+        int x = section.pos[0];
+        int y = section.pos[1];
+        for (int i = x - attackRange; i <= x + attackRange; i++) {
+            for (int j = y - attackRange; j <= y + attackRange; j++) {
+                if (i >= 0 && i <= 9 && j >= 0 && j <= 9) {
+                    Section temp = window.grid.getSection(new int[]{i, j});
+                    if (temp.entity != null) {
+                        System.out.println(temp.entity.getClass().toString());
+                        if (temp.entity instanceof Enemy) {
+                            System.out.println("Attacked enemy");
+                            ((Enemy) temp.entity).receiveDamage(damage);
+                        }
+                    }
+                    temp.sound = true;
+                }
+
+            }
+        }
     }
 
     public Player(Window window) {
@@ -84,7 +107,6 @@ public class Player extends Entity {
                         Grid grid = section.grid;
                         if (e.getCode() == KeyCode.ENTER) {
                             scene.setOnKeyPressed(null);
-                            stage.close();
                             this.stop();
                         }
                         if (e.getCode() == KeyCode.W) {
@@ -96,7 +118,6 @@ public class Player extends Entity {
                             }
                         }
                         if (e.getCode() == KeyCode.S) {
-                            System.out.println("Holaaa");
                             if (section.pos[1] != 9) {
                                 System.out.println("S");
                                 buff = new int[]{section.pos[0], section.pos[1] + 1};
@@ -125,7 +146,6 @@ public class Player extends Entity {
                 }
                 if (temp >= steps) {
                     scene.setOnKeyPressed(null);
-                    stage.close();
                     this.stop();
                 }
             }
@@ -135,9 +155,9 @@ public class Player extends Entity {
 
 
     public void executeAction() {
-        for (int i = 0; i < actions; i++) {
-            Window.playerChoice(this);
-        }
+
+        Window.playerChoice(this);
+
     }
 
     protected void configureImage() {

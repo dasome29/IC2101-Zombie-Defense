@@ -4,10 +4,12 @@ import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 public class Grid {
     Window window;
     ArrayList<ArrayList<Section>> sections = new ArrayList<>();
+    ArrayList<Section> spawns = new ArrayList<>();
     public ArrayList<Player> players = new ArrayList<>();
     public ArrayList<Enemy> enemies = new ArrayList<>();
     int x;
@@ -18,6 +20,56 @@ public class Grid {
         this.x = x;
         this.y = y;
         initialize();
+    }
+
+    public void restoreSound(){
+        for (ArrayList<Section> i :
+                sections) {
+            for (Section s :
+                    i) {
+                s.sound = false;
+            }
+        }
+    }
+
+    private void newSpawn(){
+        Random random = new Random();
+        if (spawns.size()<6){
+            Section temp = getSection(new int[]{random.nextInt(7)+3, random.nextInt(10)});
+            if (temp.type == Type.NORMAL){
+                temp.setType(Type.SPAWN);
+                spawns.add(temp);
+            }
+        }
+    }
+
+    private Enemy getEnemy(){
+        Random random = new Random();
+        Enemy result = null;
+        int i = random.nextInt(3);
+        if (i == 0){
+            result = new FishTank(window);
+        }
+        if (i == 1){
+            result = new Ghost(window);
+        }
+        if (i == 2){
+            result = new LavaDude(window);
+        }
+        return result;
+    }
+
+    public void spawn(){
+        newSpawn();
+        for (Section s :
+                spawns) {
+            if (s.entity == null){
+                System.out.println("Spawn");
+                Enemy enemy = getEnemy();
+                enemy.move(s);
+                enemies.add(enemy);
+            }
+        }
     }
 
     public Section getSection(int[] pos) {
@@ -59,7 +111,7 @@ class Section {
     Type type = Type.NORMAL;
     int x;
     int y;
-    int sound = 0;
+    boolean sound = false;
     int [] pos;
     int size = 70;
     public Grid grid;
@@ -120,6 +172,8 @@ class Section {
         if (imageType != null) {
             imageType.setTranslateX(x);
             imageType.setTranslateY(y);
+            imageType.setFitHeight(size);
+            imageType.setFitWidth(size);
             window.gamePane.getChildren().addAll(imageType);
         }
     }

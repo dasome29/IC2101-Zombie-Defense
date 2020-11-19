@@ -1,21 +1,15 @@
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 
-import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Window {
     public Stage stage;
@@ -25,6 +19,7 @@ public class Window {
     public StackPane infoPane;
     private ScrollPane scrollPane;
     private StackPane playersPane;
+    public Grid grid;
     public Cursor cursor;
     public int turn = 0;
     public ImageView start = Utility.getImage("playButton.png");
@@ -33,6 +28,7 @@ public class Window {
     public Window(Stage stage) {
         cursor = new Cursor();
         this.stage = stage;
+
 
         // Root as main Pane
         root = new Pane();
@@ -85,6 +81,9 @@ public class Window {
         this.stage.show();
     }
 
+    public void setGrid(Grid grid){
+        this.grid = grid;
+    }
     private void setPlayerButtons() {
         ImageView angel = Utility.getImage("angel.gif");
         angel.setTranslateY(50);
@@ -110,6 +109,7 @@ public class Window {
     }
 
     public static void playerChoice(Player player){
+        AtomicInteger turns = new AtomicInteger(0);
         Label label = new Label("Label");
         Stage stage = new Stage();
         stage.setResizable(false);
@@ -133,12 +133,24 @@ public class Window {
         useItemButton.setTranslateY(250);
         attackButton.setOnMouseClicked(e -> {
             player.attack();
-            stage.close();
+            turns.getAndIncrement();
+            if (turns.get() == player.actions){
+                stage.close();
+            }
         });
         moveButton.setOnMouseClicked(e -> {
             player.move(scene, stage);
+            turns.getAndIncrement();
+            if (turns.get() == player.actions){
+                stage.close();
+            }
         });
         pane.getChildren().addAll(label, attackButton, moveButton, useItemButton);
+        scene.setOnKeyPressed(e ->{
+            if (e.getCode()== KeyCode.ENTER){
+                stage.close();
+            }
+        });
         stage.setScene(scene);
         stage.initOwner(player.window.stage);
         stage.initModality(Modality.WINDOW_MODAL);
